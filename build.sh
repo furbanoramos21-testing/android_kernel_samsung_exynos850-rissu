@@ -20,6 +20,10 @@ if [ -d /rsuntk ]; then
 	export CROSS_COMPILE=/rsuntk/toolchains/google/bin/aarch64-linux-android-
 	export PATH=/rsuntk/toolchains/clang-12/bin:$PATH
 fi
+# color variable
+N='\033[0m'
+R='\033[1;31m'
+G='\033[1;32m'
 
 # start of default args
 DEFAULT_ARGS="
@@ -79,11 +83,8 @@ fi
 }
 usage() {
 	echo -e "Usage: bash `basename $0` <build_target> <-j | --jobs> <(job_count)> <defconfig>"
-	printf "\tbuild_target: dirty, kernel, config, clean\n"
+	printf "\tbuild_target: dirty, kernel, defconfig, clean\n"
 	printf "\t-j or --jobs: <int>\n"
-	
-	[ -d arch/$ARCH/configs ] && printf "\tavailable defconfig: `ls arch/arm64/configs`\n"
-	
 	echo ""
 	printf "NOTE: Run: \texport CROSS_COMPILE=\"<PATH_TO_ANDROID_CC>\"\n"
 	printf "\t\texport PATH=\"<PATH_TO_LLVM>\"\n"
@@ -95,6 +96,15 @@ usage() {
 	printf "\tLLVM: Use all llvm toolchains to build: (opt: 1)\n"
 	printf "\tLLVM_IAS: Use llvm integrated assembler: (opt: 1)\n"
 	exit;
+}
+
+pr_post_build() {
+	echo ""
+	[ "$@" = "failed" ] && echo -e "${R}#### Failed to build some targets ($1) ####${N}" ||	echo -e "${G}#### Build completed at `date` ####${N}"
+	echo ""
+	echo "======================================================="
+	[ -e $IMAGE ] && strings $IMAGE | grep "Linux version" || exit
+	echo "======================================================="
 }
 
 # if first arg starts with "clean"
@@ -114,7 +124,7 @@ elif [[ "$1" = "dirty" ]]; then
 	if [ $# -gt 3 ]; then
 		pr_err "Excess argument, only need three argument."
 	fi	
-	pr_err "Starting dirty build"
+	pr_info "Starting dirty build"
 	FIRST_JOB="$2"
 	JOB_COUNT="$3"
 	if [ "$FIRST_JOB" = "-j" ] || [ "$FIRST_JOB" = "--jobs" ]; then
@@ -127,6 +137,7 @@ elif [[ "$1" = "dirty" ]]; then
 		pr_invalid $2
 	fi
 	make -j`echo $ALLOC_JOB` -C $(pwd) O=$(pwd)/out `echo $DEFAULT_ARGS`
+	[ ! -e $IMAGE ] && pr_post_build "failed" || pr_post_build "completed"
 elif [[ "$1" = "ak3" ]]; then
 	if [ $# -gt 1 ]; then
 		pr_err "Excess argument, only need one argument."
@@ -185,34 +196,25 @@ fi
 
 pr_sum() {
 	[ -z $KBUILD_BUILD_USER ] && KBUILD_BUILD_USER="`whoami`"
-	[ -z $KBUILD_BUILD_HOST ] && KBUILD_BUILD_HOST="`hostname`"
-	
+	[ -z $KBUILD_BUILD_HOST ] && KBUILD_BUILD_HOST="`uname -n`"
 	echo ""
+	echo "======================================================="
 	echo -e "Host Arch: `uname -m`"
 	echo -e "Host Kernel: `uname -r`"
-	echo -e "Host gnumake: `make -v | grep -e "GNU Make"`"
-	echo ""
-	echo -e "Linux version: `make kernelversion`"
+	echo -e "Host GNUMake: `make -v | grep -e "GNU Make"`"
 	echo -e "Kernel builder user: $KBUILD_BUILD_USER"
 	echo -e "Kernel builder host: $KBUILD_BUILD_HOST"
+	echo ""
+	echo -e "Linux version: `make kernelversion`"
 	echo -e "Build date: `date`"
 	echo -e "Build target: `echo $BUILD`"
-	echo -e "Arch: $ARCH"
-	echo -e "Defconfig: $BUILD_DEFCONFIG"
-	echo -e "Allocated core: $ALLOC_JOB"
-	echo ""
-	echo -e "LLVM: $LLVM_"
-	echo -e "LLVM_IAS: $LLVM_IAS_"
+	echo -e "Build arch: $ARCH"
+	echo -e "Target Defconfig: $BUILD_DEFCONFIG"
+	echo -e "Allocated core(s): $ALLOC_JOB"
 	echo ""
 	echo -e "LTO: $LTO"
 	echo ""
-}
-
-pr_post_build() {
-	echo ""
-	echo -e "## Build $@ at `date` ##"
-	echo ""
-	[ "$@" = "failed" ] && exit
+	echo "======================================================="
 }
 
 post_build_clean() {
@@ -245,11 +247,7 @@ post_build() {
 	if [ -d $AK3 ]; then
 		echo "- Creating AnyKernel3"
 		gen_getutsrelease;
-		if [ -d $(pwd)/out ]; then
-			gcc -D__OUT__ -CC utsrelease.c -o getutsrel
-		else
-			gcc -CC utsrelease.c -o getutsrel
-		fi
+		[ -d $(pwd)/out ] && gcc -D__OUT__ -CC utsrelease.c -o getutsrel || gcc -CC utsrelease.c -o getutsrel
 		UTSRELEASE=$(./getutsrel)
 		sed -i "s/kernel\.string=.*/kernel.string=$UTSRELEASE/" "$AK3/anykernel.sh"
 		sed -i "s/BLOCK=.*/BLOCK=\/dev\/block\/platform\/12100000.dwmmc0\/by-name\/boot;/" "$AK3/anykernel.sh"
