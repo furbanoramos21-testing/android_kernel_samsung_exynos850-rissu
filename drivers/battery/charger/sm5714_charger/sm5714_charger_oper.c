@@ -16,10 +16,10 @@
 #include "../../common/sec_charging_common.h"
 
 enum {
-	OP_MODE_SUSPEND     = 0x0,
-	OP_MODE_CHG_ON_VBUS = 0x5,
-	OP_MODE_USB_OTG     = 0x7,
-	OP_MODE_FLASH_BOOST = 0x8,
+    OP_MODE_SUSPEND     = 0x0,
+    OP_MODE_CHG_ON_VBUS = 0x5,
+    OP_MODE_USB_OTG     = 0x7,
+    OP_MODE_FLASH_BOOST = 0x8,
 };
 
 enum {
@@ -44,13 +44,12 @@ enum {
 	OTG_CURRENT_1500mA  = 0x3,
 };
 
-#define make_OP_STATUS(vbus, otg, pwr_shar, flash, torch, suspend)  \
-			(((vbus & 0x1)      << SM5714_CHARGER_OP_EVENT_VBUSIN)     | \
-			((otg & 0x1)       << SM5714_CHARGER_OP_EVENT_USB_OTG)     | \
-			((pwr_shar & 0x1)  << SM5714_CHARGER_OP_EVENT_PWR_SHAR)    | \
-			((flash & 0x1)     << SM5714_CHARGER_OP_EVENT_FLASH)       | \
-			((torch & 0x1)     << SM5714_CHARGER_OP_EVENT_TORCH)       | \
-			((suspend & 0x1)   << SM5714_CHARGER_OP_EVENT_SUSPEND))
+#define make_OP_STATUS(vbus, otg, pwr_shar, flash, torch, suspend)  (((vbus & 0x1)      << SM5714_CHARGER_OP_EVENT_VBUSIN)      | \
+												((otg & 0x1)       << SM5714_CHARGER_OP_EVENT_USB_OTG)     | \
+												((pwr_shar & 0x1)  << SM5714_CHARGER_OP_EVENT_PWR_SHAR)    | \
+												((flash & 0x1)     << SM5714_CHARGER_OP_EVENT_FLASH)       | \
+												((torch & 0x1)     << SM5714_CHARGER_OP_EVENT_TORCH)       | \
+												((suspend & 0x1)   << SM5714_CHARGER_OP_EVENT_SUSPEND))
 
 struct sm5714_charger_oper_table_info {
 	unsigned short status;
@@ -68,7 +67,6 @@ struct sm5714_charger_oper_info {
 	/* for Factory mode control */
 	unsigned char factory_RID;
 	int chg_float_voltage;
-	bool set_factory_619k;
 };
 static struct sm5714_charger_oper_info *oper_info;
 
@@ -78,40 +76,25 @@ static struct sm5714_charger_oper_info *oper_info;
  **/
 static struct sm5714_charger_oper_table_info sm5714_charger_op_mode_table[] = {
 	/* Charger=ON Mode in a valid Input */
-	{ make_OP_STATUS(0, 0, 0, 0, 0, 0),
-					OP_MODE_CHG_ON_VBUS, BSTOUT_4500mV, OTG_CURRENT_500mA},
-	{ make_OP_STATUS(1, 0, 0, 0, 0, 0),
-					OP_MODE_CHG_ON_VBUS, BSTOUT_4500mV, OTG_CURRENT_500mA},
-	{ make_OP_STATUS(1, 1, 0, 0, 0, 0), /* Prevent : VBUS + OTG timing sync */
-					OP_MODE_CHG_ON_VBUS, BSTOUT_4500mV, OTG_CURRENT_500mA},
-	{ make_OP_STATUS(1, 0, 0, 0, 1, 0),
-					OP_MODE_CHG_ON_VBUS, BSTOUT_4500mV, OTG_CURRENT_500mA},
+	{ make_OP_STATUS(0, 0, 0, 0, 0, 0), OP_MODE_CHG_ON_VBUS, BSTOUT_4500mV, OTG_CURRENT_500mA},
+	{ make_OP_STATUS(1, 0, 0, 0, 0, 0), OP_MODE_CHG_ON_VBUS, BSTOUT_4500mV, OTG_CURRENT_500mA},
+	{ make_OP_STATUS(1, 1, 0, 0, 0, 0), OP_MODE_CHG_ON_VBUS, BSTOUT_4500mV, OTG_CURRENT_500mA},      /* Prevent : VBUS + OTG timing sync */
+	{ make_OP_STATUS(1, 0, 0, 0, 1, 0), OP_MODE_CHG_ON_VBUS, BSTOUT_4500mV, OTG_CURRENT_500mA},
 	/* Flash Boost Mode */
-	{ make_OP_STATUS(0, 0, 0, 1, 0, 0),
-					OP_MODE_FLASH_BOOST, BSTOUT_5100mV, OTG_CURRENT_500mA},
-	{ make_OP_STATUS(1, 0, 0, 1, 0, 0),
-					OP_MODE_FLASH_BOOST, BSTOUT_5100mV, OTG_CURRENT_500mA},
+	{ make_OP_STATUS(0, 0, 0, 1, 0, 0), OP_MODE_FLASH_BOOST, BSTOUT_5100mV, OTG_CURRENT_500mA},
+	{ make_OP_STATUS(1, 0, 0, 1, 0, 0), OP_MODE_FLASH_BOOST, BSTOUT_5100mV, OTG_CURRENT_500mA},
 
-	{ make_OP_STATUS(0, 0, 1, 1, 0, 0),
-					OP_MODE_FLASH_BOOST, BSTOUT_5100mV, OTG_CURRENT_900mA},
-	{ make_OP_STATUS(0, 0, 0, 1, 1, 0),
-					OP_MODE_FLASH_BOOST, BSTOUT_5100mV, OTG_CURRENT_900mA},
-	{ make_OP_STATUS(0, 0, 0, 0, 1, 0),
-					OP_MODE_FLASH_BOOST, BSTOUT_5100mV, OTG_CURRENT_900mA},
+	{ make_OP_STATUS(0, 0, 1, 1, 0, 0), OP_MODE_FLASH_BOOST, BSTOUT_5100mV, OTG_CURRENT_900mA},
+	{ make_OP_STATUS(0, 0, 0, 1, 1, 0), OP_MODE_FLASH_BOOST, BSTOUT_5100mV, OTG_CURRENT_900mA},
+	{ make_OP_STATUS(0, 0, 0, 0, 1, 0), OP_MODE_FLASH_BOOST, BSTOUT_5100mV, OTG_CURRENT_900mA},
 	/* USB OTG Mode */
-	{ make_OP_STATUS(0, 1, 0, 0, 0, 0),
-					OP_MODE_USB_OTG,     BSTOUT_5100mV, OTG_CURRENT_900mA},
-	{ make_OP_STATUS(0, 0, 1, 0, 0, 0),
-					OP_MODE_USB_OTG,     BSTOUT_5100mV, OTG_CURRENT_900mA},
-	{ make_OP_STATUS(0, 1, 0, 1, 0, 0),
-					OP_MODE_USB_OTG,     BSTOUT_5100mV, OTG_CURRENT_900mA},
-	{ make_OP_STATUS(0, 1, 0, 0, 1, 0),
-					OP_MODE_USB_OTG,     BSTOUT_5100mV, OTG_CURRENT_900mA},
-	{ make_OP_STATUS(0, 0, 1, 0, 1, 0),
-					OP_MODE_USB_OTG,     BSTOUT_5100mV, OTG_CURRENT_900mA},
-	/* Suspend Mode : Reserved position of SUSPEND mode table */
-	{ make_OP_STATUS(0, 0, 0, 0, 0, 1),
-					OP_MODE_SUSPEND,     BSTOUT_5100mV, OTG_CURRENT_900mA},
+	{ make_OP_STATUS(0, 1, 0, 0, 0, 0), OP_MODE_USB_OTG,     BSTOUT_5100mV, OTG_CURRENT_900mA},
+	{ make_OP_STATUS(0, 0, 1, 0, 0, 0), OP_MODE_USB_OTG,     BSTOUT_5100mV, OTG_CURRENT_900mA},
+	{ make_OP_STATUS(0, 1, 0, 1, 0, 0), OP_MODE_USB_OTG, 	 BSTOUT_5100mV, OTG_CURRENT_900mA},
+	{ make_OP_STATUS(0, 1, 0, 0, 1, 0), OP_MODE_USB_OTG,     BSTOUT_5100mV, OTG_CURRENT_900mA},
+	{ make_OP_STATUS(0, 0, 1, 0, 1, 0), OP_MODE_USB_OTG,     BSTOUT_5100mV, OTG_CURRENT_900mA},
+	/* Suspend Mode */
+	{ make_OP_STATUS(0, 0, 0, 0, 0, 1), OP_MODE_SUSPEND,     BSTOUT_5100mV, OTG_CURRENT_900mA},      /* Reserved position of SUSPEND mode table */
 };
 
 static void sm5714_charger_oper_set_batreg(u16 float_voltage)
@@ -157,10 +140,9 @@ static inline int change_op_table(unsigned char new_status)
 {
 	int i = 0;
 
-	pr_info("%s: Old table[%d] info (STATUS: 0x%x, MODE: %d, BST_OUT: 0x%x, OTG_CURRENT: 0x%x)\n",
-			__func__, oper_info->table_index, oper_info->current_table.status,
-			oper_info->current_table.oper_mode, oper_info->current_table.BST_OUT,
-			oper_info->current_table.OTG_CURRENT);
+	pr_info("sm5714-charger: %s: Old table[%d] info (STATUS: 0x%x, MODE: %d, BST_OUT: 0x%x, OTG_CURRENT: 0x%x)\n",
+			__func__, oper_info->table_index, oper_info->current_table.status, oper_info->current_table.oper_mode,
+			oper_info->current_table.BST_OUT, oper_info->current_table.OTG_CURRENT);
 
 	/* Check actvated Suspend Mode */
 	if (new_status & (0x1 << SM5714_CHARGER_OP_EVENT_SUSPEND)) {
@@ -168,12 +150,13 @@ static inline int change_op_table(unsigned char new_status)
 	} else {
 		/* Search matched Table */
 		for (i = 0; i < oper_info->max_table_num; ++i) {
-			if (new_status == sm5714_charger_op_mode_table[i].status)
+			if (new_status == sm5714_charger_op_mode_table[i].status) {
 				break;
+			}
 		}
 	}
 	if (i == oper_info->max_table_num) {
-		pr_err("%s: can't find matched charger op_mode table (status = 0x%x)\n", __func__, new_status);
+		pr_err("sm5714-charger: %s: can't find matched charger op_mode table (status = 0x%x)\n", __func__, new_status);
 		return -EINVAL;
 	}
 
@@ -186,12 +169,10 @@ static inline int change_op_table(unsigned char new_status)
 	oper_info->current_table.OTG_CURRENT = sm5714_charger_op_mode_table[i].OTG_CURRENT;
 
 	/* Factory 523K-JIG Test : Torch Light - Prevent VBUS input source */
-	if ((sm5714_charger_op_mode_table[i].status & 0x02) &&
-			(oper_info->factory_RID == RID_255K || oper_info->factory_RID == RID_523K)) {
+	if ((sm5714_charger_op_mode_table[i].status & 0x02) && (oper_info->factory_RID == RID_255K || oper_info->factory_RID == RID_523K)) {
 		pr_info("sm5714-charger: %s: skip Flash Boost mode for Factory JIG fled:torch test\n", __func__);
 	/* Factory 523K-JIG Test : Flash Light - Prevent VBUS input source */
-	} else if ((sm5714_charger_op_mode_table[i].status & 0x04) &&
-			(oper_info->factory_RID == RID_255K || oper_info->factory_RID == RID_523K)) {
+	} else if ((sm5714_charger_op_mode_table[i].status & 0x04) && (oper_info->factory_RID == RID_255K || oper_info->factory_RID == RID_523K)) {
 		pr_info("sm5714-charger: %s: skip Flash Boost mode for Factory JIG fled:flash test\n", __func__);
 	} else {
 		set_OP_MODE(oper_info->i2c, sm5714_charger_op_mode_table[i].oper_mode);
@@ -200,10 +181,9 @@ static inline int change_op_table(unsigned char new_status)
 	oper_info->current_table.status = new_status;
 	oper_info->table_index = i;
 
-	pr_info("%s: New table[%d] (STATUS: 0x%x, MODE: %d, BST_OUT: 0x%x, OTG_CURRENT: 0x%x)\n",
-			__func__, oper_info->table_index, oper_info->current_table.status,
-			oper_info->current_table.oper_mode, oper_info->current_table.BST_OUT,
-			oper_info->current_table.OTG_CURRENT);
+	pr_info("sm5714-charger: %s: New table[%d] info (STATUS: 0x%x, MODE: %d, BST_OUT: 0x%x, OTG_CURRENT: 0x%x)\n",
+			__func__, oper_info->table_index, oper_info->current_table.status, oper_info->current_table.oper_mode,
+			oper_info->current_table.BST_OUT, oper_info->current_table.OTG_CURRENT);
 
 	return 0;
 }
@@ -215,16 +195,17 @@ static inline unsigned char update_status(int event_type, bool enable)
 		return oper_info->current_table.status;
 	}
 
-	if (enable)
+	if (enable) {
 		return (oper_info->current_table.status | (1 << event_type));
-	else
+	} else {
 		return (oper_info->current_table.status & ~(1 << event_type));
+	}
 }
 
 int sm5714_charger_oper_push_event(int event_type, bool enable)
 {
 	unsigned char new_status;
-	int ret = 0;
+    int ret = 0;
 
 	if (oper_info == NULL) {
 		pr_err("sm5714-charger: %s: required init op_mode table\n", __func__);
@@ -235,10 +216,10 @@ int sm5714_charger_oper_push_event(int event_type, bool enable)
 	mutex_lock(&oper_info->op_mutex);
 
 	new_status = update_status(event_type, enable);
-	if (new_status == oper_info->current_table.status)
+    if (new_status == oper_info->current_table.status) {
 		goto out;
-
-	ret = change_op_table(new_status);
+	}
+    ret = change_op_table(new_status);
 
 out:
 	mutex_unlock(&oper_info->op_mutex);
@@ -249,7 +230,7 @@ EXPORT_SYMBOL_GPL(sm5714_charger_oper_push_event);
 
 static inline int detect_initial_table_index(struct i2c_client *i2c)
 {
-	return 0;
+    return 0;
 }
 int sm5714_charger_oper_table_init(struct sm5714_dev *sm5714)
 {
@@ -268,9 +249,10 @@ int sm5714_charger_oper_table_init(struct sm5714_dev *sm5714)
 	}
 
 	oper_info = kmalloc(sizeof(struct sm5714_charger_oper_info), GFP_KERNEL);
-	if (oper_info == NULL)
+	if (oper_info == NULL) {
+		pr_err("sm5714-charger: %s: failed to alloctae memory\n", __func__);
 		return -ENOMEM;
-
+	}
 	oper_info->i2c = i2c;
 
 	mutex_init(&oper_info->op_mutex);
@@ -300,16 +282,11 @@ int sm5714_charger_oper_table_init(struct sm5714_dev *sm5714)
 			oper_info->chg_float_voltage = 4350;
 		}
 		pr_info("%s: battery,chg_float_voltage is %d\n", __func__, oper_info->chg_float_voltage);
-
-		oper_info->set_factory_619k = of_property_read_bool(np, "battery,set_factory_619k");
-		pr_info("%s: battery,set_factory_619k %d\n", __func__,
-			oper_info->set_factory_619k);
 	}
 
-	pr_info("%s: current table[%d] (STATUS: 0x%x, MODE: %d, BST_OUT: 0x%x, OTG_CURRENT: 0x%x)\n",
-			__func__, oper_info->table_index, oper_info->current_table.status,
-			oper_info->current_table.oper_mode, oper_info->current_table.BST_OUT,
-			oper_info->current_table.OTG_CURRENT);
+	pr_info("sm5714-charger: %s: current table[%d] info (STATUS: 0x%x, MODE: %d, BST_OUT: 0x%x, OTG_CURRENT: 0x%x)\n", \
+			__func__, oper_info->table_index, oper_info->current_table.status, oper_info->current_table.oper_mode, \
+			oper_info->current_table.BST_OUT, oper_info->current_table.OTG_CURRENT);
 
 	return 0;
 }
@@ -317,18 +294,18 @@ EXPORT_SYMBOL_GPL(sm5714_charger_oper_table_init);
 
 int sm5714_charger_oper_get_current_status(void)
 {
-	if (oper_info == NULL)
+	if (oper_info == NULL) {
 		return -EINVAL;
-
+	}
 	return oper_info->current_table.status;
 }
 EXPORT_SYMBOL_GPL(sm5714_charger_oper_get_current_status);
 
 int sm5714_charger_oper_get_current_op_mode(void)
 {
-	if (oper_info == NULL)
+	if (oper_info == NULL) {
 		return -EINVAL;
-
+	}
 	return oper_info->current_table.oper_mode;
 }
 EXPORT_SYMBOL_GPL(sm5714_charger_oper_get_current_op_mode);
@@ -338,72 +315,36 @@ int sm5714_charger_oper_en_factory_mode(int dev_type, int rid, bool enable)
 	u8 reg = 0x0;
 	union power_supply_propval val = {0, };
 
-	if (oper_info == NULL)
+	if (oper_info == NULL) {
 		return -EINVAL;
+	}
 
 	if (enable) {
 		switch (rid) {
 		case RID_523K:
-			if (oper_info->set_factory_619k) {
-				sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL2,
-					0x00, 0x0F);	/* SUSPEND MODE */
-			}
 			sm5714_charger_oper_set_batreg(4200);
-			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL1,
-				(0x0 << 6), (0x1 << 6));	/* AICLEN_VBUS = 0 (Disable) */
-			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_FACTORY1,
-				(0x1 << 0), (0x1 << 0));	/* NOZX = 1 (Disable) */
-			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL,
-				(0x7F << 0), (0x7F << 0));	/* VBUS_LIMIT = MAX(3275mA) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL1, (0x0 << 6), (0x1 << 6));	/* AICLEN_VBUS = 0 (Disable) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_FACTORY1, (0x1 << 0), (0x1 << 0));	/* NOZX = 1 (Disable) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL, (0x7F << 0), (0x7F << 0));	/* VBUS_LIMIT = MAX(3275mA) */
 			break;
 		case RID_301K:
-			if (oper_info->set_factory_619k) {
-				sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL2,
-					0x05, 0x0F);	/* CHG_ON MODE */
-			}
-			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL1,
-				(0x0 << 6), (0x1 << 6));	/* AICLEN_VBUS = 0 (Disable) */
-			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_FACTORY1,
-				(0x0 << 0), (0x1 << 0));	/* NOZX = 0 (Enable) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL1, (0x0 << 6), (0x1 << 6));	/* AICLEN_VBUS = 0 (Disable) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_FACTORY1, (0x0 << 0), (0x1 << 0));	/* NOZX = 0 (Enable) */
 #if defined(CONFIG_SEC_FACTORY)
-			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL,
-				(0x7F << 0), (0x7F << 0));	/* VBUS_LIMIT = MAX(3275mA) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL, (0x7F << 0), (0x7F << 0));	/* VBUS_LIMIT = MAX(3275mA) */
 #else
-			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL,
-				(0x44 << 0), (0x7F << 0));	/* VBUS_LIMIT = MAX(1800mA) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL, (0x44 << 0), (0x7F << 0));	/* VBUS_LIMIT = MAX(1800mA) */
 #endif
 			break;
 		case RID_619K:
-			if (oper_info->set_factory_619k) {
-				sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL2,
-					0x05, 0x0F);	/* CHG_ON MODE */
-				sm5714_charger_oper_set_batreg(4200);
-				sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL1,
-					(0x0 << 6), (0x1 << 6));	/* AICLEN_VBUS = 0 (Disable) */
-				sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_FACTORY1,
-					(0x1 << 0), (0x1 << 0));	/* NOZX = 1 (Disable) */
-				sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL,
-					(0x7F << 0), (0x7F << 0));	/* VBUS_LIMIT = MAX(3275mA) */
-			} else {
-				sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL1,
-					(0x0 << 6), (0x1 << 6));	/* AICLEN_VBUS = 0 (Disable) */
-				sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_FACTORY1,
-					(0x0 << 0), (0x1 << 0));	/* NOZX = 0 (Enable) */
-				sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL,
-					(0x44 << 0), (0x7F << 0));	/* VBUS_LIMIT = 1800mA */
-			}
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL1, (0x0 << 6), (0x1 << 6));	/* AICLEN_VBUS = 0 (Disable) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_FACTORY1, (0x0 << 0), (0x1 << 0));	/* NOZX = 0 (Enable) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL, (0x44 << 0), (0x7F << 0));	/* VBUS_LIMIT = 1800mA */
 			break;
 		case RID_255K:
-			if (oper_info->set_factory_619k) {
-				sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL2,
-					0x00, 0x0F);	/* SUSPEND MODE */
-			}
-			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL1,
-				(0x0 << 6), (0x1 << 6));	/* AICLEN_VBUS = 0 (Disable) */
-			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_FACTORY1,
-				(0x0 << 0), (0x1 << 0));	/* NOZX = 0 (Enable) */
-			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL,
-				(0x7F << 0), (0x7F << 0));	/* VBUS_LIMIT = MAX(3275mA) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL1, (0x0 << 6), (0x1 << 6));	/* AICLEN_VBUS = 0 (Disable) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_FACTORY1, (0x0 << 0), (0x1 << 0));	/* NOZX = 0 (Enable) */
+			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL, (0x7F << 0), (0x7F << 0));	/* VBUS_LIMIT = MAX(3275mA) */
 			break;
 		}
 
@@ -413,27 +354,19 @@ int sm5714_charger_oper_en_factory_mode(int dev_type, int rid, bool enable)
 		oper_info->factory_RID = rid;
 
 		sm5714_read_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL, &reg);
-		pr_info("%s: enable factory mode configuration(RID=%d, vbuslimit=0x%02X)\n", __func__, rid, reg);
+		pr_info("sm5714-charger: %s enable factory mode configuration(RID=%d, vbuslimit=0x%02X)\n", __func__, rid, reg);
 	} else {
-		if (oper_info->set_factory_619k) {
-			sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL2,
-				0x05, 0x0F);	/* CHG_ON MODE */
-		}
 		sm5714_charger_oper_set_batreg(oper_info->chg_float_voltage);
 
-		sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CHGCNTL11,
-			(0x0 << 0), (0x1 << 0));		/* forced_vsys	= disable */
+		sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CHGCNTL11, (0x0 << 0), (0x1 << 0));		/* forced_vsys	= disable */
 
-		sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL1,
-			(0x1 << 6), (0x1 << 6));		/* AICLEN_VBUS	= 1 (Enable) */
-		sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_FACTORY1,
-			(0x0 << 0), (0x1 << 0));		/* NOZX			= 0 (Enable) */
-		sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL,
-			(0x10 << 0), (0x7F << 0));		/* VBUS_LIMIT	= 500mA */
+		sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_CNTL1, (0x1 << 6), (0x1 << 6));			/* AICLEN_VBUS 	= 1 (Enable) */
+		sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_FACTORY1, (0x0 << 0), (0x1 << 0));			/* NOZX 		= 0 (Enable) */
+		sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL, (0x10 << 0), (0x7F << 0));		/* VBUS_LIMIT	= 500mA */
 
 		oper_info->factory_RID = 0;
 		sm5714_read_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL, &reg);
-		pr_info("%s: disable factory mode configuration(vbuslimit=0x%02X)\n", __func__, reg);
+		pr_info("sm5714-charger: %s disable factory mode configuration(vbuslimit=0x%02X)\n", __func__, reg);
 	}
 
 	return 0;
@@ -454,13 +387,13 @@ int sm5714_charger_oper_forced_vbus_limit_control(int mA)
 	sm5714_update_reg(oper_info->i2c, SM5714_CHG_REG_VBUSCNTL, ((new_offset & 0x7F) << 0), (0x7F << 0));
 
 	msec = (old_mA - mA) / 10;		// 10mA/ms
-	if (msec < 0)
+	if (msec < 0) {
 		msec *= (-1);
+	}
 
 	msleep(msec);
 
-	pr_info("sm5714-charger: %s VBUSLIMIT control 0x%X[%dmA] -> 0x%X[%dmA] (%d ms)\n",
-		__func__, old_offset, old_mA, new_offset, mA, msec);
+	pr_info("sm5714-charger: %s VBUSLIMIT control 0x%X[%dmA] -> 0x%X[%dmA] (%d ms) \n", __func__, old_offset, old_mA, new_offset, mA, msec);
 
 	return 0;
 }
