@@ -876,7 +876,6 @@ struct sm5714_usbpd_manager_data {
 	int vbus_adc;
 #endif
 	bool support_vpdo;
-	int short_cable_current;
 };
 
 struct sm5714_usbpd_data {

@@ -302,7 +302,6 @@ struct sm5714_phydrv_data {
 #endif
 	bool is_otg_vboost;
 	bool is_jig_case_on;
-	bool is_noti_src_adv;
 	bool is_mpsm_exit;
 	bool suspended;
 	bool soft_reset;
