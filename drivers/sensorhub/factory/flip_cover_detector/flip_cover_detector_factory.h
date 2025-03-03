@@ -45,6 +45,4 @@ enum {
 
 void check_cover_detection_factory(void);
 
-#define FCD_SUBCMD_CAL_MATRIX_NUM	126
-
 #endif
