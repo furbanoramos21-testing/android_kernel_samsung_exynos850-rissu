@@ -45,6 +45,10 @@ pr_err() {
 pr_info() {
 	echo -e "[+] $@"
 }
+pr_step() {
+	echo "[$1 / $2] $3"
+ 	sleep 2
+}
 strip() { # fmt: strip <module>
 	llvm-strip $@ --strip-unneeded
 }
@@ -197,6 +201,7 @@ fi
 pr_sum() {
 	[ -z $KBUILD_BUILD_USER ] && KBUILD_BUILD_USER="`whoami`"
 	[ -z $KBUILD_BUILD_HOST ] && KBUILD_BUILD_HOST="`uname -n`"
+ 	pr_step "1" "3" "Starting build with Rissu's build script ..."
 	echo ""
 	echo "======================================================="
 	echo -e "Host Arch: `uname -m`"
@@ -204,16 +209,15 @@ pr_sum() {
 	echo -e "Host GNUMake: `make -v | grep -e "GNU Make"`"
 	echo -e "Kernel builder user: $KBUILD_BUILD_USER"
 	echo -e "Kernel builder host: $KBUILD_BUILD_HOST"
-	echo ""
+	printf "\n"
 	echo -e "Linux version: `make kernelversion`"
 	echo -e "Build date: `date`"
 	echo -e "Build target: `echo $BUILD`"
 	echo -e "Build arch: $ARCH"
 	echo -e "Target Defconfig: $BUILD_DEFCONFIG"
 	echo -e "Allocated core(s): $ALLOC_JOB"
-	echo ""
+	printf "\n"
 	echo -e "LTO: $LTO"
-	echo ""
 	echo "======================================================="
 }
 
@@ -261,7 +265,7 @@ post_build() {
 			post_build_clean;
 		fi
 		cd ..
-		pr_err "Build done. Thanks for using this build script :)"
+		pr_step "3" "3" "Build script ended."
 	fi
 }
 
@@ -287,6 +291,7 @@ handle_lto() {
 # call summary
 pr_sum
 if [ "$BUILD" = "kernel" ]; then
+	pr_step "2" "3" "Building targets ($BUILD) with lto=$LTO"
 	make -j`echo $ALLOC_JOB` -C $(pwd) O=$(pwd)/out `echo $DEFAULT_ARGS` `echo $BUILD_DEFCONFIG`
 	[ "$KERNELSU" = "true" ] && setconfig enable KSU
 	[ "$LTO" != "none" ] && handle_lto || pr_info "LTO not set";
