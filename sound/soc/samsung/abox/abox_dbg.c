@@ -20,10 +20,8 @@
 #include <linux/mm_types.h>
 #include <linux/memblock.h>
 #include <asm/cacheflush.h>
-#ifdef CONFIG_SND_SOC_SAMSUNG_AUDIO
 #ifdef CONFIG_SEC_DEBUG
 #include <linux/sec_debug.h>
-#endif
 #endif
 
 #include "abox_util.h"
@@ -181,7 +179,7 @@ static void abox_dbg_clear_valid(int idx)
 static ssize_t abox_dbg_read_valid(struct file *file, char __user *user_buf,
 				    size_t count, loff_t *ppos)
 {
-	uintptr_t idx = (uintptr_t)file->private_data;
+	int idx = (int)file->private_data;
 	bool valid = abox_dbg_dump_valid(idx);
 	char buf_val[4] = {0, }; /* enough to store a bool and "\n\0" */
 
@@ -203,7 +201,7 @@ static const struct file_operations abox_dbg_fops_valid = {
 static ssize_t abox_dbg_read_clear(struct file *file, char __user *user_buf,
 				   size_t count, loff_t *ppos)
 {
-	uintptr_t idx = (uintptr_t)file->private_data;
+	int idx = (int)file->private_data;
 
 	abox_dbg_clear_valid(idx);
 
@@ -214,7 +212,7 @@ static ssize_t abox_dbg_write_clear(struct file *file,
 				    const char __user *user_buf,
 				    size_t count, loff_t *ppos)
 {
-	uintptr_t idx = (uintptr_t)file->private_data;
+	int idx = (int)file->private_data;
 
 	abox_dbg_clear_valid(idx);
 
@@ -737,15 +735,6 @@ static DEVICE_ATTR(gpr, 0440, gpr_show, NULL);
 void set_dbg_dram_alloc_flag(struct abox_data *data)
 {
 	data->is_dbg_dram_alloc = true;
-#ifdef CONFIG_SND_SOC_SAMSUNG_AUDIO
-#ifdef CONFIG_SEC_DEBUG
-	/* debug level low -> upload mode 0 */
-	if (secdbg_mode_enter_upload() == 0)
-		data->is_dbg_dram_alloc = false;
-
-	pr_info("%s is_dbg_dram_alloc=%d\n", __func__, data->is_dbg_dram_alloc);
-#endif
-#endif
 }
 
 static void abox_dbg_alloc_work_func(struct work_struct *work)
@@ -806,14 +795,12 @@ static struct notifier_block abox_dbg_power_nb = {
 int is_slog_memory_free(void)
 {
 	int ret = 0;
-#ifdef CONFIG_SND_SOC_SAMSUNG_AUDIO
 #ifdef CONFIG_SEC_DEBUG
 	/* debug level low -> upload mode 0 */
 	if (secdbg_mode_enter_upload() == 0)
 		ret = 1;
 
 	pr_info("%s ret=%d\n", __func__, ret);
-#endif
 #endif
 	return ret;
 }
