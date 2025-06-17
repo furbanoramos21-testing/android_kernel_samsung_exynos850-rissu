@@ -32,6 +32,8 @@ ARCH=arm64
 "
 export ARCH=arm64
 export CLANG_TRIPLE=aarch64-linux-gnu-
+export PLATFORM_VERSION=13
+export ANDROID_MAJOR_VERSION=t
 # end of default args
 
 pr_invalid() {
