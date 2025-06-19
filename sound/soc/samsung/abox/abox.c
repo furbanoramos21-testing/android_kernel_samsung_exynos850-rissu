@@ -1042,10 +1042,10 @@ int abox_iommu_map_sg(struct device *dev, unsigned long iova,
 		goto out;
 	}
 
-	ret = iommu_map_sg(data->iommu_domain, iova, sg, nents, prot);
+	ret = default_iommu_map_sg(data->iommu_domain, iova, sg, nents, prot);
 	if (ret < 0) {
 		devm_kfree(dev, mapping);
-		dev_err(dev, "iommu_map_sg(%#lx) fail: %d\n", iova, ret);
+		dev_err(dev, "default_iommu_map_sg(%#lx) fail: %d\n", iova, ret);
 		goto out;
 	}
 
@@ -3084,7 +3084,7 @@ static int samsung_abox_probe(struct platform_device *pdev)
 	INIT_LIST_HEAD(&data->iommu_maps);
 
 	data->ipc_workqueue = alloc_ordered_workqueue("abox_ipc",
-			WQ_MEM_RECLAIM);
+			WQ_MEM_RECLAIM | WQ_HIGHPRI);
 	if (!data->ipc_workqueue) {
 		dev_err(dev, "Couldn't create workqueue %s\n", "abox_ipc");
 		return -ENOMEM;
