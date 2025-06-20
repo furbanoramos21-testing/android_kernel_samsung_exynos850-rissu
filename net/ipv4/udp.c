@@ -450,7 +450,7 @@ static struct sock *udp4_lib_lookup2(struct net *net,
 				hash = udp_ehashfn(net, daddr, hnum,
 						   saddr, sport);
 				reuseport_result = reuseport_select_sock(sk, hash, skb,
-									 sizeof(struct udphdr));
+							sizeof(struct udphdr));
 				if (reuseport_result && !reuseport_has_conns(sk, false))
 					return reuseport_result;
 			}

@@ -1854,6 +1854,12 @@ drop:
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_MODEM_IF_NET_GRO
+	if (!(tun->flags & IFF_NO_PI))
+		if (pi.flags & htons(CHECKSUM_UNNECESSARY))
+			skb->ip_summed = CHECKSUM_UNNECESSARY;
+#endif
+
 	switch (tun->flags & TUN_TYPE_MASK) {
 	case IFF_TUN:
 		if (tun->flags & IFF_NO_PI) {
@@ -1882,7 +1888,7 @@ drop:
 			err = -ENOMEM;
 			goto drop;
 		}
-		skb->protocol = eth_type_trans(skb, tun->dev);
+			skb->protocol = eth_type_trans(skb, tun->dev);
 		break;
 	}
 
@@ -2941,7 +2947,7 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 		 * TUNSETIFF.
 		 */
 		return put_user(IFF_TUN | IFF_TAP | TUN_FEATURES,
-				(unsigned int __user*)argp);
+			(unsigned int __user*)argp);
 	} else if (cmd == TUNSETQUEUE) {
 		return tun_set_queue(file, &ifr);
 	} else if (cmd == SIOCGSKNS) {
