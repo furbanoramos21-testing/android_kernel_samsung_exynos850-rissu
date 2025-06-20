@@ -132,3 +132,9 @@ all.config
 
 # Kdevelop4
 *.kdev4
+
+# Build
+/out/
+/AnyKernel3/
+*.zip
+getutsrel
