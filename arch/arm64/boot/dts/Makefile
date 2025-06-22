@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0
 dtbo-y += samsung/a12s/a12s_eur_open_w00_r00.dtbo
 dtbo-y += samsung/a12s/a12s_eur_open_w00_r01.dtbo
+dtbo-y += samsung/m12/m12_eur_open_w00_r00.dtbo
+dtbo-y += samsung/m12/m12_eur_open_w00_r01.dtbo
 
 dtbo-y += exynos/exynos3830-universal3830_r01.dtbo
 dtbo-y += exynos/exynos3830-universal3830_r15.dtbo
