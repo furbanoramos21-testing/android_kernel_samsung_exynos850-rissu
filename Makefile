@@ -446,6 +446,7 @@ KBUILD_AFLAGS   := -D__ASSEMBLY__
 KBUILD_CFLAGS   := -Wall -Wundef -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common -fshort-wchar \
 		   -std=gnu89 \
+		   -Werror	\
 		   -Wstrict-prototypes \
 		   -Werror=return-type -Wno-format-security
 KBUILD_CPPFLAGS := -D__KERNEL__
