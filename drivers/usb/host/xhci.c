@@ -3887,11 +3887,7 @@ static void xhci_free_dev(struct usb_hcd *hcd, struct usb_device *udev)
 	 * device.
 	 */
 	if (ret <= 0 && ret != -ENODEV)
-#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
-		goto out;
-#else
 		return;
-#endif
 
 	virt_dev = xhci->devs[udev->slot_id];
 	slot_ctx = xhci_get_slot_ctx(xhci, virt_dev->out_ctx);

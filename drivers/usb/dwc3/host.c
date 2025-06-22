@@ -8,16 +8,14 @@
  */
 
 #include <linux/platform_device.h>
+
 #ifdef CONFIG_SND_EXYNOS_USB_AUDIO
 #include <linux/usb/exynos_usb_audio.h>
-#endif
-
-#include "core.h"
-
-#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
 struct host_data xhci_data;
 struct exynos_usb_audio *usb_audio;
 #endif
+
+#include "core.h"
 
 struct usb_xhci_pre_alloc {
 	u8 *pre_dma_alloc;
