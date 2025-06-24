@@ -1,6 +1,7 @@
 #
 # Near Field Communication (NFC) devices
 #
+
 config SEC_NFC
 	bool "Samsung NFC driver"
 	default n
