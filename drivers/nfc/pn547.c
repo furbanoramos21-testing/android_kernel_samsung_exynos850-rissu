@@ -2068,7 +2068,7 @@ static int pn547_probe(struct i2c_client *client, const struct i2c_device_id *id
 #if 0
 	wake_lock_init(&pn547_dev->nfc_wake_lock, WAKE_LOCK_SUSPEND, "nfc_wake_lock");
 #else
-	nfc_wake_lock_init(pn547_dev->nfc_wake_lock, "nfc_wake_lock");
+	nfc_wake_lock_init(&pn547_dev->nfc_wake_lock, "nfc_wake_lock");
 #endif
 
 	atomic_set(&pn547_dev->irq_enabled, 1);
@@ -2076,7 +2076,7 @@ static int pn547_probe(struct i2c_client *client, const struct i2c_device_id *id
 #if 0
 		wake_lock_init(&pn547_dev->nfc_clk_wake_lock, WAKE_LOCK_SUSPEND, "nfc_clk_wake_lock");
 #else
-		nfc_wake_lock_init(pn547_dev->nfc_clk_wake_lock, "nfc_clk_wake_lock");
+		nfc_wake_lock_init(&pn547_dev->nfc_clk_wake_lock, "nfc_clk_wake_lock");
 #endif
 #ifdef FEATURE_NFC_IRQ_LVL_TRIGGER
 	ret = request_irq(client->irq, pn547_dev_irq_handler, IRQF_TRIGGER_HIGH,
