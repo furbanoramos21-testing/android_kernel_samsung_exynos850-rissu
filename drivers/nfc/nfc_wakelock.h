@@ -28,34 +28,16 @@ struct nfc_wake_lock {
 
 static inline void nfc_wake_lock_init(struct nfc_wake_lock *lock, const char *name)
 {
-#if defined(CONFIG_SEC_NFC_WAKELOCK_METHOD)
-#if CONFIG_SEC_NFC_WAKELOCK_METHOD == 1
-	wakeup_source_init(lock->ws, name); /* 4.19 R */
-	if (!(lock->ws)) {
-		lock->ws = wakeup_source_create(name);
-		if (lock->ws)
-			wakeup_source_add(lock->ws);
-	}
-#elif CONFIG_SEC_NFC_WAKELOCK_METHOD == 2
-	lock->ws = wakeup_source_register(NULL, name);
-#else
-#define CONFIG_AUTO_INIT_SELECTION
-#endif
-#else /* CONFIG_SEC_NFC_WAKELOCK_METHOD */
-#define CONFIG_AUTO_INIT_SELECTION
-#endif /* CONFIG_SEC_NFC_WAKELOCK_METHOD */
-
-#if defined(CONFIG_AUTO_INIT_SELECTION)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)
-	wakeup_source_init(lock->ws, name); /* 4.19 R */
+#if !defined(CONFIG_SUPPORT_WAKEUP_REGISTER) && LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)
 	if (!(lock->ws)) {
 		lock->ws = wakeup_source_create(name); /* 4.19 Q */
 		if (lock->ws)
 			wakeup_source_add(lock->ws);
+	} else {
+		wakeup_source_init(lock->ws, name); /* 4.19 R */
 	}
 #else
 	lock->ws = wakeup_source_register(NULL, name); /* 5.4 R */
-#endif
 #endif
 }
 
