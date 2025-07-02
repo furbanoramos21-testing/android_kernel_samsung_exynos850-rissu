@@ -1429,11 +1429,11 @@ config SND_SOC_TAS2562
 	select TAS2562_CODEC
 	select TAS25XX_ALGO
 
-config SND_SMARTPA_AW882XX
-	tristate "SoC Audio for Awinic aw882xx series"
+config SND_SMARTPA_AW8896
+	tristate "SoC Audio for awinic aw8896 series"
 	depends on I2C
 	help
-	  This option enables support for aw882xx series Smart PA.
+	  This option enables support for aw8896 series Smart PA.
 
 config SND_SOC_FS18XX
 	tristate "FourSemi fs18xx Codec Driver"
