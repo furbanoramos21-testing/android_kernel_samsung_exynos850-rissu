@@ -5,7 +5,8 @@
 # Licensed under GPLv2
 #
 
-obj-$(CONFIG_EXYNOS_MIPI_DSIM) += timenval.o panel.o panel_bl.o dimming.o panel_drv.o panel_irc.o decon_board.o
+obj-$(CONFIG_EXYNOS_MIPI_DSIM) += timenval.o panel.o panel_bl.o dimming.o panel_drv.o panel_irc.o decon_board.o decon_notify.o decon_void_regulator.o decon_assist.o
+obj-$(and $(CONFIG_SMCDSD_LCD_DEBUG),$(subst undefined,y,$(origin CONFIG_SAMSUNG_PRODUCT_SHIP))) += dd_lcd.o dd_backlight.o dd_param.o dd_assist.o
 obj-$(CONFIG_EXYNOS_DECON_MDNIE) += mdnie.o
 obj-$(CONFIG_EXYNOS_DECON_LCD_SYSFS) += sysfs.o
 obj-$(CONFIG_EXYNOS_DECON_LCD_SPI) += spi.o
