@@ -1407,8 +1407,6 @@ static void *a12s_init_cmdtbl[] = {
 	&PKTINFO(a12s_nt36525b_dtc_183),
 	&PKTINFO(a12s_sleep_out),
 	&DLYINFO(a12s_wait_100msec),
-	&PKTINFO(a12s_display_on),
-	&PKTINFO(a12s_brightness_mode),
 
 };
 
@@ -1419,6 +1417,11 @@ static void *a12s_res_init_cmdtbl[] = {
 static void *a12s_set_bl_cmdtbl[] = {
 	&PKTINFO(a12s_brightness), //51h
 };
+
+static void *a12s_display_on_cmdtbl[] = {
+	&PKTINFO(a12s_display_on),
+	&PKTINFO(a12s_brightness_mode),
+}
 
 static void *a12s_display_off_cmdtbl[] = {
 	&PKTINFO(a12s_display_off),
@@ -1478,6 +1481,7 @@ static struct seqinfo a12s_seqtbl[MAX_PANEL_SEQ] = {
 	[PANEL_INIT_SEQ] = SEQINFO_INIT("init-seq", a12s_init_cmdtbl),
 	[PANEL_RES_INIT_SEQ] = SEQINFO_INIT("resource-init-seq", a12s_res_init_cmdtbl),
 	[PANEL_SET_BL_SEQ] = SEQINFO_INIT("set-bl-seq", a12s_set_bl_cmdtbl),
+	[PANEL_DISPLAY_ON_SEQ] = SEQINFO_INIT("display-on-seq", a12s_display_on_cmdtbl),
 	[PANEL_DISPLAY_OFF_SEQ] = SEQINFO_INIT("display-off-seq", a12s_display_off_cmdtbl),
 	[PANEL_EXIT_SEQ] = SEQINFO_INIT("exit-seq", a12s_exit_cmdtbl),
 #ifdef CONFIG_SUPPORT_I2C
