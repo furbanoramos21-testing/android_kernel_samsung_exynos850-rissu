@@ -118,17 +118,9 @@ config SUPPORT_ERRFG_RECOVERY_BY_FB_BLANK
 	tristate "Support ERRFG recovery by fb blank"
 	default n
 
-config EXYNOS_DECON_LCD_EA8076_A21S
-	depends on EXYNOS_DECON_LCD
-	tristate "EA8076_A21S LCD driver"
-
 config EXYNOS_DECON_LCD_ILI9882N_M12S
 	depends on EXYNOS_DECON_LCD
 	tristate "ILI9882N_M12S LCD driver"
-
-config EXYNOS_DECON_LCD_NT36525_XCOVER5
-	depends on EXYNOS_DECON_LCD
-	tristate "NT36525_XCOVER5 LCD driver"
 
 config EXYNOS_DECON_LCD_NT36675_M12
 	depends on EXYNOS_DECON_LCD
