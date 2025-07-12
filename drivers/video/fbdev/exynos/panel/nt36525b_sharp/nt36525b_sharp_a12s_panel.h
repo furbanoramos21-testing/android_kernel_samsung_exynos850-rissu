@@ -1654,7 +1654,8 @@ static void *a12s_set_bl_cmdtbl[] = {
 static void *a12s_display_on_cmdtbl[] = {
 	&PKTINFO(a12s_display_on),
 	&PKTINFO(a12s_brightness_mode),
-}
+};
+
 static void *a12s_display_off_cmdtbl[] = {
 	&PKTINFO(a12s_display_off),
 	&DLYINFO(a12s_wait_display_off),
