@@ -2371,7 +2371,7 @@ static void *m12_set_bl_cmdtbl[] = {
 static void *m12_display_on_cmdtbl[] = {
 	&PKTINFO(m12_display_on),
 	&PKTINFO(m12_brightness_mode),
-}
+};
 
 static void *m12_display_off_cmdtbl[] = {
 	&PKTINFO(m12_display_off),
