@@ -11,7 +11,7 @@
 
 #include <linux/input/sec_cmd.h>
 
-#if defined USE_SEC_CMD_QUEUE
+#ifdef USE_SEC_CMD_QUEUE
 static void sec_cmd_store_function(struct sec_cmd_data *data);
 #endif
 
@@ -42,7 +42,7 @@ void sec_cmd_set_cmd_exit(struct sec_cmd_data *data)
 #endif
 }
 
-#if defined USE_SEC_CMD_QUEUE
+#ifdef USE_SEC_CMD_QUEUE
 static void cmd_exit_work(struct work_struct *work)
 {
 	struct sec_cmd_data *data = container_of(work, struct sec_cmd_data, cmd_work.work);
