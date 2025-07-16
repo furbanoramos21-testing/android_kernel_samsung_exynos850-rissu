@@ -104,7 +104,7 @@ extern const uint16_t gesture_key_array[];
 #define BOOT_UPDATE_FIRMWARE 1
 //#define BOOT_UPDATE_FIRMWARE_NAME "tsp_novatek/nt36525_a01core_tp.bin"
 //#define MP_UPDATE_FIRMWARE_NAME   "tsp_novatek/nt36525_a01core_mp.bin"
-#define POINT_DATA_CHECKSUM 1
+#define POINT_DATA_CHECKSUM 0
 #define POINT_DATA_CHECKSUM_LEN 65
 
 #define TSP_PATH_EXTERNAL_FW		"/sdcard/firmware/tsp/tsp.bin"

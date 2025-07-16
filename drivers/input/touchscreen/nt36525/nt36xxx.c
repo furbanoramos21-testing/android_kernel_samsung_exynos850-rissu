@@ -2955,7 +2955,6 @@ int32_t nvt_ts_resume(struct device *dev)
 	mutex_lock(&ts->lock);
 
 	if (ts->power_status == LP_MODE_EXIT) {
-
 		nvt_ts_lcd_power_ctrl(false);
 	} else {
 		pinctrl_configure(ts, true);
