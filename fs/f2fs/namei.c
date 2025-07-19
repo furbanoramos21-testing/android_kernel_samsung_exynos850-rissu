@@ -600,7 +600,7 @@ static int f2fs_unlink(struct inode *dir, struct dentry *dentry)
 	}
 
 	if (unlikely(inode->i_nlink == 0)) {
-		f2fs_warn(inode->i_sb,
+		f2fs_warn(F2FS_I_SB(inode),
 			 "%s: inode (ino=%lx) has zero i_nlink",
 			 __func__, inode->i_ino);
 		err = -EFSCORRUPTED;
