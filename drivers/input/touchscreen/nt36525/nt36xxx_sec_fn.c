@@ -1978,49 +1978,33 @@ static void get_threshold(void *device_data)
 	input_info(true, &ts->client->dev, "%s: %s\n", __func__, buff);
 }
 
-static void check_connection(void *device_data)
+void check_connection(struct nvt_ts_data *ts)
 {
-	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
-	struct nvt_ts_data *ts = container_of(sec, struct nvt_ts_data, sec);
-	char buff[SEC_CMD_STR_LEN] = { 0 };
-	int ret;
-
-	sec_cmd_set_default_result(sec);
+	int ret = 0;
 
 	if (ts->power_status == POWER_OFF_STATUS) {
 		input_err(true, &ts->client->dev, "%s: POWER_STATUS : OFF!\n", __func__);
-		goto out;
+		return;
 	}
 
 	if (mutex_lock_interruptible(&ts->lock)) {
 		input_err(true, &ts->client->dev, "%s: another task is running\n",
 			__func__);
-		goto out;
+		return;
 	}
 
 	//---Download MP FW---
 	nvt_ts_fw_update_from_mp_bin(ts, true);
 
 	ret = nvt_ts_open_test(ts);
-
+	if (ret) {
+		input_err(true, &ts->client->dev, "%s: nvt_ts_open_test failed. ret: %d\n", ret);
+		return;
+	}
 	//---Download Normal FW---
 	nvt_ts_fw_update_from_mp_bin(ts, false);
 
 	mutex_unlock(&ts->lock);
-
-	snprintf(buff, sizeof(buff), "%s", ret ? "NG" : "OK");
-
-	sec->cmd_state =  ret ? SEC_CMD_STATUS_FAIL : SEC_CMD_STATUS_OK;
-	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
-
-	input_info(true, &ts->client->dev, "%s: %s\n", __func__, buff);
-
-	return;
-
-out:
-	snprintf(buff, sizeof(buff), "%s", "NG");
-	sec->cmd_state = SEC_CMD_STATUS_FAIL;
-	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 
 	input_info(true, &ts->client->dev, "%s: %s\n", __func__, buff);
 }
@@ -5186,7 +5170,6 @@ static struct sec_cmd sec_cmds[] = {
 	{SEC_CMD("get_chip_vendor", get_chip_vendor),},
 	{SEC_CMD("get_chip_name", get_chip_name),},
 	{SEC_CMD("get_threshold", get_threshold),},
-	{SEC_CMD("check_connection", check_connection),},
 	{SEC_CMD_H("glove_mode", glove_mode),},
 	{SEC_CMD_H("aot_enable", aot_enable),},
 	{SEC_CMD_H("set_sip_mode", set_sip_mode),},

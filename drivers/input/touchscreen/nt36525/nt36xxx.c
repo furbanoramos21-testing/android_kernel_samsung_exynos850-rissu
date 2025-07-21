@@ -2940,6 +2940,7 @@ Description:
 return:
 	Executive outcomes. 0---succeed.
 *******************************************************/
+extern void check_connection(struct nvt_ts_data *ts);
 int32_t nvt_ts_resume(struct device *dev)
 {
 	struct nvt_ts_data *ts = dev_get_drvdata(dev);
@@ -2955,7 +2956,6 @@ int32_t nvt_ts_resume(struct device *dev)
 	mutex_lock(&ts->lock);
 
 	if (ts->power_status == LP_MODE_EXIT) {
-
 		nvt_ts_lcd_power_ctrl(false);
 	} else {
 		pinctrl_configure(ts, true);
@@ -2975,6 +2975,7 @@ int32_t nvt_ts_resume(struct device *dev)
 		input_err(true, &ts->client->dev,"download firmware failed, ignore check fw state\n");
 	} else {
 		nvt_check_fw_reset_state(RESET_STATE_REK);
+		check_connection(ts);
 	}
 
 	nvt_ts_mode_restore(ts);
