@@ -2005,8 +2005,6 @@ void check_connection(struct nvt_ts_data *ts)
 	nvt_ts_fw_update_from_mp_bin(ts, false);
 
 	mutex_unlock(&ts->lock);
-
-	input_info(true, &ts->client->dev, "%s: %s\n", __func__, buff);
 }
 
 static void glove_mode(void *device_data)
