@@ -2025,7 +2025,7 @@ out:
 	input_info(true, &ts->client->dev, "%s: %s\n", __func__, buff);
 }
 
-static inline bool nvt_support_glove = false;
+static bool nvt_support_glove = false;
 static void glove_mode(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
