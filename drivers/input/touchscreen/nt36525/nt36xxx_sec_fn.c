@@ -2025,6 +2025,7 @@ out:
 	input_info(true, &ts->client->dev, "%s: %s\n", __func__, buff);
 }
 
+static inline bool nvt_support_glove = false;
 static void glove_mode(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
@@ -2035,11 +2036,13 @@ static void glove_mode(void *device_data)
 
 	sec_cmd_set_default_result(sec);
 
-	// return early.
-	return;
-
 	if (ts->power_status == POWER_OFF_STATUS) {
 		input_err(true, &ts->client->dev, "%s: POWER_STATUS : OFF!\n", __func__);
+		goto out;
+	}
+
+	if (!nvt_support_glove) {
+		input_err(true, &ts->client->dev, "%s: nvt_support_glove is 0!\n", __func__);
 		goto out;
 	}
 
