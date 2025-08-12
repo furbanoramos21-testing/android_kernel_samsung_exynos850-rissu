@@ -2035,6 +2035,9 @@ static void glove_mode(void *device_data)
 
 	sec_cmd_set_default_result(sec);
 
+	// return early.
+	return;
+
 	if (ts->power_status == POWER_OFF_STATUS) {
 		input_err(true, &ts->client->dev, "%s: POWER_STATUS : OFF!\n", __func__);
 		goto out;
@@ -2194,6 +2197,11 @@ static void prox_lp_scan_mode(void *device_data)
 
 	if (ts->power_status != LP_MODE_STATUS) {
 		input_err(true, &ts->client->dev, "%s: Not LP_MODE_STATUS!\n", __func__);
+		goto out;
+	}
+
+	if (!ts->ear_detect_mode) {
+		input_err(true, &ts->client->dev, "%s: Not EAR_DETECT_MODE!\n", __func__);
 		goto out;
 	}
 
