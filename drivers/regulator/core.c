@@ -4599,18 +4599,13 @@ static void regulator_show_enabled_subtree(struct regulator_dev *rdev,
 	if (!rdev)
 		return;
 
-	if (rdev->use_count <= 0)
+	if (rdev->constraints->always_on || rdev->use_count <= 0)
 		goto out;
 
-	if (rdev->constraints->always_on &&
-			rdev->constraints->initial_mode == 1)
-		goto out;
-
-	pr_cont("%*s%-*s %3d %4d %9d",
+	pr_cont("%*s%-*s %3d %4d ",
 		   level * 3 + 1, "",
 		   30 - level * 3, rdev_get_name(rdev),
-		   rdev->use_count, rdev->constraints->initial_mode,
-		   rdev->constraints->always_on);
+		   rdev->use_count, rdev->constraints->initial_mode);
 
 	c = rdev->constraints;
 	if (c) {
@@ -4625,6 +4620,30 @@ static void regulator_show_enabled_subtree(struct regulator_dev *rdev,
 			break;
 		}
 	}
+#if 0
+	struct regulator *consumer;
+
+	list_for_each_entry(consumer, &rdev->consumer_list, list) {
+		if (consumer->dev && consumer->dev->class == &regulator_class)
+			continue;
+
+		pr_cont("%*s%-*s ",
+			   (level + 1) * 3 + 1, "",
+			   30 - (level + 1) * 3,
+			   consumer->dev ? dev_name(consumer->dev) : "deviceless");
+
+		switch (rdev->desc->type) {
+		case REGULATOR_VOLTAGE:
+			pr_cont("%14dmV %5dmV\n",
+				   consumer->voltage[PM_SUSPEND_ON].min_uV / 1000,
+				   consumer->voltage[PM_SUSPEND_ON].max_uV / 1000);
+			break;
+		case REGULATOR_CURRENT:
+			pr_cont("\n");
+			break;
+		}
+	}
+#endif
 out:
 	check_data.level = level;
 	check_data.parent = rdev;
@@ -4645,8 +4664,8 @@ static int _regulator_show_enabled(struct device *dev, void *data)
 
 int regulator_show_enabled(void)
 {
-	pr_info(" regulator                      use mode always-on     min     max\n");
-	pr_info("------------------------------------------------------------------\n");
+	pr_info(" regulator                      use mode     min     max\n");
+	pr_info("--------------------------------------------------------\n");
 
 	return class_for_each_device(&regulator_class, NULL, NULL,
 				     _regulator_show_enabled);
